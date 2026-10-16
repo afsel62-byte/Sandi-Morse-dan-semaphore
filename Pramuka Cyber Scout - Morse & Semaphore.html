@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandi Pramuka Digital - Morse & Semaphore</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pramuka: {
+                            dark: '#3E2723',      // Cokelat Tua Pramuka
+                            medium: '#5D4037',    // Cokelat Sedang
+                            primary: '#8D6E63',   // Cokelat Khas
+                            light: '#F5EBE6',     // Krem / Cokelat Muda Light
+                            accent: '#D84315',    // Merah Khas
+                            gold: '#FFB300',      // Kuning Emas
+                            green: '#2E7D32',     // Hijau Tunas Kelapa
+                            greenlight: '#E8F5E9',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5EBE6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8D6E63;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5D4037;
+        }
+        /* Signal Light Animation Class */
+        .flash-active {
+            background-color: #FFD54F !important;
+            box-shadow: 0 0 35px 10px rgba(255, 213, 79, 0.9);
+        }
+    </style>
+</head>
+<body class="bg-amber-50/40 text-stone-800 font-sans min-h-screen flex flex-col justify-between selection:bg-pramuka-gold selection:text-pramuka-dark">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-pramuka-dark text-white shadow-lg sticky top-0 z-50 border-b-4 border-pramuka-gold">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <!-- Brand & Mascot -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-pramuka-green flex items-center justify-center text-pramuka-gold shadow-md border-2 border-pramuka-gold">
+                    <!-- Svg Tunas Kelapa / Scout Emblem -->
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                        <path d="M12,2C11.5,4 9.5,7 9.5,10.5C9.5,12.5 10.5,14 12,14.5C13.5,14 14.5,12.5 14.5,10.5C14.5,7 12.5,4 12,2M12,16C9,16 6,18 6,21H18C18,18 15,16 12,16Z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-wide flex items-center gap-2 text-amber-100">
+                        SCOUT<span class="text-pramuka-gold">CYBER</span>
+                    </h1>
+                    <p class="text-xs text-amber-200/80 font-medium">Penerjemah & Latihan Sandi Pramuka</p>
+                </div>
+            </div>
+
+            <!-- Sound Toggle & Badge -->
+            <div class="flex items-center gap-3">
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="flex items-center gap-2 bg-pramuka-medium hover:bg-pramuka-primary text-amber-100 text-xs font-semibold px-3 py-2 rounded-lg border border-amber-900/40 transition">
+                    <i id="soundIcon" class="fas fa-volume-up text-pramuka-gold"></i>
+                    <span id="soundStatusText" class="hidden sm:inline">Suara: ON</span>
+                </button>
+                <div class="hidden md:flex items-center gap-2 bg-pramuka-green/30 border border-pramuka-green/50 text-emerald-200 text-xs px-3 py-1.5 rounded-full">
+                    <i class="fas fa-shield-halved text-pramuka-gold"></i>
+                    <span>Tunas Kelapa Digital</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-pramuka-dark/80 backdrop-blur-md border-t border-amber-900/40">
+            <div class="max-w-6xl mx-auto px-4 flex justify-around sm:justify-start gap-1 sm:gap-2">
+                <button onclick="switchTab('morse')" id="tab-morse" class="tab-btn active py-3 px-3 sm:px-5 font-bold text-xs sm:text-sm border-b-4 border-pramuka-gold text-pramuka-gold flex items-center gap-2 transition">
+                    <i class="fas fa-broadcast-tower"></i> Sandi Morse
+                </button>
+                <button onclick="switchTab('semaphore')" id="tab-semaphore" class="tab-btn py-3 px-3 sm:px-5 font-bold text-xs sm:text-sm border-b-4 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 transition">
+                    <i class="fas fa-flag"></i> Sandi Semaphore
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn py-3 px-3 sm:px-5 font-bold text-xs sm:text-sm border-b-4 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 transition">
+                    <i class="fas fa-gamepad"></i> Kuis & Latihan
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+
+        <!-- ================= TAB 1: SANDI MORSE ================= -->
+        <section id="content-morse" class="tab-content space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-pramuka-dark flex items-center gap-2">
+                        <i class="fas fa-wifi text-pramuka-accent"></i> Penerjemah Sandi Morse Interaktif
+                    </h2>
+                    <p class="text-sm text-stone-600">Terjemahkan teks biasa ke audio & visual Morse, atau konversi balik kode Morse ke teks.</p>
+                </div>
+                <div class="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 text-xs font-semibold text-amber-900">
+                    <i class="fas fa-lightbulb text-pramuka-gold"></i> Gunakan titik '.' dan strip '-'
+                </div>
+            </div>
+
+            <!-- Translator Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Text Input Box -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="font-bold text-stone-700 text-sm flex items-center gap-2">
+                            <i class="fas fa-font text-pramuka-primary"></i> Teks Biasa
+                        </label>
+                        <button onclick="clearMorseInput()" class="text-xs text-stone-400 hover:text-red-500 font-medium">
+                            <i class="fas fa-trash"></i> Bersihkan
+                        </button>
+                    </div>
+                    <textarea id="morseTextInput" oninput="translateTextToMorse()" placeholder="Ketik kalimat atau kata di sini... (Contoh: PRAMUKA)" class="w-full h-36 p-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-pramuka-primary focus:outline-none resize-none font-medium text-stone-800"></textarea>
+                    
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button onclick="playMorseAudio()" class="flex-1 bg-pramuka-primary hover:bg-pramuka-medium text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition shadow-sm">
+                            <i class="fas fa-play"></i> Putar Suara
+                        </button>
+                        <button onclick="stopMorseAudio()" class="bg-stone-200 hover:bg-stone-300 text-stone-700 px-3 py-2.5 rounded-xl font-semibold text-sm transition" title="Hentikan Audio">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                        <button onclick="copyToClipboard('morseTextInput')" class="bg-amber-100 hover:bg-amber-200 text-pramuka-dark px-4 py-2.5 rounded-xl font-semibold text-sm transition" title="Salin Teks">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Morse Code Box -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="font-bold text-stone-700 text-sm flex items-center gap-2">
+                            <i class="fas fa-code text-pramuka-green"></i> Kode Morse (. / -)
+                        </label>
+                        <span class="text-xs text-stone-400">Pisahkan huruf dengan spasi</span>
+                    </div>
+                    <textarea id="morseCodeInput" oninput="translateMorseToText()" placeholder="Ketik kode morse di sini... (Contoh: .--. .-. .- -- ..- -.- .-)" class="w-full h-36 p-3 bg-stone-900 text-amber-300 font-mono text-lg border border-stone-800 rounded-xl focus:ring-2 focus:ring-pramuka-gold focus:outline-none resize-none tracking-wider"></textarea>
+
+                    <!-- Visual Lamp Signal Indicator -->
+                    <div class="mt-3 flex items-center justify-between bg-stone-100 p-2.5 rounded-xl border border-stone-200">
+                        <div class="flex items-center gap-3">
+                            <div id="signalLight" class="w-7 h-7 rounded-full bg-stone-300 border-2 border-stone-400 transition-all duration-75 flex items-center justify-center text-xs">
+                                <i class="fas fa-bolt text-stone-500"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-stone-600">Sinyal Lampu Visual</span>
+                        </div>
+                        <button onclick="copyToClipboard('morseCodeInput')" class="bg-stone-200 hover:bg-stone-300 text-stone-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                            <i class="fas fa-copy"></i> Salin Morse
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Morse Reference Table Collapsible -->
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                <button onclick="toggleElement('morseTable')" class="w-full p-4 bg-stone-50 hover:bg-stone-100 text-left font-bold text-pramuka-dark flex justify-between items-center text-sm">
+                    <span class="flex items-center gap-2"><i class="fas fa-book-open text-pramuka-gold"></i> Tabel Referensi Cepat Abjad & Angka Morse</span>
+                    <i class="fas fa-chevron-down text-stone-400"></i>
+                </button>
+                <div id="morseTable" class="p-5 border-t border-stone-200">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-xs font-mono" id="morseDictionaryGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: SANDI SEMAPHORE ================= -->
+        <section id="content-semaphore" class="tab-content space-y-6 hidden">
+            <!-- Header Card -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-pramuka-dark flex items-center gap-2">
+                        <i class="fas fa-flag text-pramuka-accent"></i> Visualisator Bendera Semaphore
+                    </h2>
+                    <p class="text-sm text-stone-600">Ketik kata atau kalimat untuk melihat gerak animasi posisi bendera Semaphore secara akurat.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Input & Controls (Left 5 Cols) -->
+                <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col justify-between space-y-4">
+                    <div>
+                        <label class="font-bold text-stone-700 text-sm mb-2 block">
+                            <i class="fas fa-keyboard text-pramuka-primary"></i> Teks Yang Ingin Diperagakan:
+                        </label>
+                        <input type="text" id="semaphoreInput" maxlength="50" value="PRAMUKA" oninput="updateSemaphoreDisplay()" placeholder="Ketik kata (misal: SIAGA)" class="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl font-bold text-stone-800 tracking-wide uppercase focus:ring-2 focus:ring-pramuka-primary focus:outline-none">
+                        <p class="text-xs text-stone-400 mt-1">Maksimal 50 karakter (A-Z dan Angka)</p>
+                    </div>
+
+                    <!-- Animation Playback Controls -->
+                    <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200 space-y-3">
+                        <div class="flex justify-between items-center text-xs font-bold text-pramuka-dark">
+                            <span>KONTROL ANIMASI</span>
+                            <span id="semaphoreCharIndex">Huruf: 1 / 7</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="playSemaphoreSequence()" id="btnPlaySemaphore" class="flex-1 bg-pramuka-green hover:bg-emerald-800 text-white py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                                <i class="fas fa-play"></i> Putar Urutan
+                            </button>
+                            <button onclick="stopSemaphoreSequence()" class="bg-stone-200 hover:bg-stone-300 text-stone-700 py-2.5 px-3 rounded-xl font-bold text-xs transition">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                            <button onclick="stepSemaphore(-1)" class="bg-amber-100 hover:bg-amber-200 text-pramuka-dark py-2.5 px-3 rounded-xl font-bold text-xs transition" title="Sebelumnya">
+                                <i class="fas fa-backward"></i>
+                            </button>
+                            <button onclick="stepSemaphore(1)" class="bg-amber-100 hover:bg-amber-200 text-pramuka-dark py-2.5 px-3 rounded-xl font-bold text-xs transition" title="Berikutnya">
+                                <i class="fas fa-forward"></i>
+                            </button>
+                        </div>
+                        <!-- Speed Control -->
+                        <div class="flex items-center gap-2 pt-2">
+                            <span class="text-xs text-stone-500 font-medium">Kecepatan:</span>
+                            <input type="range" id="semaphoreSpeed" min="400" max="1500" value="800" step="100" class="w-full accent-pramuka-primary">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Semaphore Display Canvas/SVG Area (Right 7 Cols) -->
+                <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-stone-200 flex flex-col items-center justify-center min-h-[320px]">
+                    <div class="text-center mb-2">
+                        <span id="currentSemaphoreChar" class="text-4xl font-extrabold text-pramuka-dark bg-amber-100 px-4 py-1 rounded-xl border border-amber-300 inline-block shadow-sm">P</span>
+                    </div>
+
+                    <!-- SVG Semaphore Figure -->
+                    <div class="relative w-64 h-64 flex items-center justify-center bg-stone-50 rounded-2xl border border-stone-200 shadow-inner my-2">
+                        <svg id="semaphoreSvg" class="w-56 h-56" viewBox="0 0 200 200">
+                            <!-- Base Figure Body -->
+                            <!-- Head -->
+                            <circle cx="100" cy="55" r="16" fill="#5D4037" />
+                            <!-- Hat / Cap Pramuka -->
+                            <path d="M 80 50 Q 100 35 120 50 Z" fill="#D84315" />
+                            <rect x="76" y="49" width="48" height="4" rx="2" fill="#FFB300" />
+                            <!-- Torso -->
+                            <path d="M 85 75 L 115 75 L 110 140 L 90 140 Z" fill="#8D6E63" />
+                            <!-- Scarf/Kacu Pramuka Red & White -->
+                            <path d="M 88 75 L 100 95 L 112 75 Z" fill="#D84315" />
+                            <path d="M 93 75 L 100 88 L 107 75 Z" fill="#FFFFFF" />
+                            <!-- Legs -->
+                            <rect x="88" y="140" width="10" height="40" rx="3" fill="#3E2723" />
+                            <rect x="102" y="140" width="10" height="40" rx="3" fill="#3E2723" />
+
+                            <!-- LEFT ARM & FLAG (Grouped for rotation) -->
+                            <g id="leftArmGroup">
+                                <line x1="90" y1="80" x2="40" y2="80" stroke="#5D4037" stroke-width="8" stroke-linecap="round" />
+                                <!-- Flag Staff -->
+                                <line x1="40" y1="80" x2="10" y2="80" stroke="#3E2723" stroke-width="3" />
+                                <!-- Flag Canvas (Red & Yellow Diagonal) -->
+                                <g transform="translate(10, 80)">
+                                    <polygon points="0,0 30,0 30,30 0,30" fill="#FFB300" />
+                                    <polygon points="0,0 30,30 0,30" fill="#D84315" />
+                                </g>
+                            </g>
+
+                            <!-- RIGHT ARM & FLAG (Grouped for rotation) -->
+                            <g id="rightArmGroup">
+                                <line x1="110" y1="80" x2="160" y2="80" stroke="#5D4037" stroke-width="8" stroke-linecap="round" />
+                                <!-- Flag Staff -->
+                                <line x1="160" y1="80" x2="190" y2="80" stroke="#3E2723" stroke-width="3" />
+                                <!-- Flag Canvas -->
+                                <g transform="translate(160, 80)">
+                                    <polygon points="0,0 30,0 30,30 0,30" fill="#FFB300" />
+                                    <polygon points="0,0 30,30 0,30" fill="#D84315" />
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="flex gap-1 overflow-x-auto max-w-full p-2" id="semaphoreWordBreadcrumbs">
+                        <!-- Word letters list clickable -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Semaphore Guide Chart -->
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                <button onclick="toggleElement('semaphoreTable')" class="w-full p-4 bg-stone-50 hover:bg-stone-100 text-left font-bold text-pramuka-dark flex justify-between items-center text-sm">
+                    <span class="flex items-center gap-2"><i class="fas fa-th text-pramuka-gold"></i> Panduan Lengkap Posisi Bendera Semaphore (A - Z)</span>
+                    <i class="fas fa-chevron-down text-stone-400"></i>
+                </button>
+                <div id="semaphoreTable" class="p-5 border-t border-stone-200">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 text-center" id="semaphoreGridGuide">
+                        <!-- JS populated small icons -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: KUIS & LATIHAN ================= -->
+        <section id="content-quiz" class="tab-content space-y-6 hidden">
+            <!-- Quiz Header Stats -->
+            <div class="bg-gradient-to-r from-pramuka-dark to-pramuka-medium text-white p-6 rounded-2xl shadow-md flex flex-wrap justify-between items-center gap-4 border-b-4 border-pramuka-gold">
+                <div>
+                    <span class="bg-pramuka-gold text-pramuka-dark text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Uji Kecakapan</span>
+                    <h2 class="text-2xl font-black mt-1 text-amber-100">Kuis Sandi Pramuka</h2>
+                    <p class="text-xs text-amber-200/80">Latih ketajaman pendengaran dan penglihatan sandimu!</p>
+                </div>
+
+                <!-- Stats Badges -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-center border border-white/10">
+                        <p class="text-[10px] text-amber-200 font-bold uppercase">Skor</p>
+                        <p id="quizScore" class="text-xl font-black text-pramuka-gold">0</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-center border border-white/10">
+                        <p class="text-[10px] text-amber-200 font-bold uppercase">Streak</p>
+                        <p id="quizStreak" class="text-xl font-black text-emerald-400">0 🔥</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Settings / Mode Selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="startQuizMode('morse-audio')" id="mode-morse-audio" class="quiz-mode-btn bg-white p-4 rounded-xl border-2 border-pramuka-gold text-left hover:shadow-md transition flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-100 text-pramuka-dark flex items-center justify-center font-bold">
+                            <i class="fas fa-volume-up text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-stone-800 text-sm">Tebak Suara Morse</h4>
+                            <p class="text-xs text-stone-500">Dengarkan audio dan tebak hurufnya</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-stone-400"></i>
+                </button>
+
+                <button onclick="startQuizMode('semaphore-visual')" id="mode-semaphore-visual" class="quiz-mode-btn bg-white p-4 rounded-xl border-2 border-transparent text-left hover:shadow-md transition flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-pramuka-green flex items-center justify-center font-bold">
+                            <i class="fas fa-flag text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-stone-800 text-sm">Tebak Bendera Semaphore</h4>
+                            <p class="text-xs text-stone-500">Lihat gaya bendera dan tebak hurufnya</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-stone-400"></i>
+                </button>
+            </div>
+
+            <!-- Active Quiz Box -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 flex flex-col items-center text-center relative overflow-hidden">
+                <!-- Timer Bar -->
+                <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden mb-6">
+                    <div id="quizTimerBar" class="bg-pramuka-gold h-full w-full transition-all duration-1000"></div>
+                </div>
+
+                <!-- Question Prompt -->
+                <div id="quizQuestionArea" class="w-full max-w-md py-4 min-h-[160px] flex flex-col items-center justify-center">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Options Grid (4 Choices) -->
+                <div id="quizOptionsGrid" class="grid grid-cols-2 gap-3 w-full max-w-md mt-4">
+                    <!-- Buttons inserted via JS -->
+                </div>
+
+                <!-- Feedback Message Overlay -->
+                <div id="quizFeedback" class="mt-4 font-bold text-sm hidden p-3 rounded-xl w-full max-w-md"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-pramuka-dark text-amber-200/70 text-xs py-6 border-t-2 border-pramuka-gold mt-8">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+            <div>
+                <p class="font-bold text-amber-100">Satu Pramuka untuk Satu Indonesia 🇮🇩</p>
+                <p class="mt-1">Salam Pramuka! Aplikasi Edukasi Kepramukaan Modern.</p>
+            </div>
+            <div class="text-amber-300 font-medium">
+                <span>Satyaku Kudarmakan, Darmaku Kubaktikan</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ================= MORSE & SEMAPHORE DICTIONARIES ================= */
+        const MORSE_MAP = {
+            'A': '.-',    'B': '-...',  'C': '-.-.',  'D': '-..',   'E': '.',
+            'F': '..-.',  'G': '--.',   'H': '....',  'I': '..',    'J': '.---',
+            'K': '-.-',   'L': '.-..',  'M': '--',    'N': '-.',    'O': '---',
+            'P': '.--.',  'Q': '--.-',  'R': '.-.',   'S': '...',   'T': '-',
+            'U': '..-',   'V': '...-',  'W': '.--',   'X': '-..-',  'Y': '-.--',
+            'Z': '--..',
+            '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+            '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+            ' ': '/'
+        };
+
+        const REVERSE_MORSE_MAP = Object.fromEntries(
+            Object.entries(MORSE_MAP).map(([k, v]) => [v, k])
+        );
+
+        // Semaphore Angle mapping (Left Arm, Right Arm) in degrees (0 = down, 45, 90, 135, 180, 225, 270, 315)
+        // 0: South(Down), 45: SW, 90: West(Left), 135: NW, 180: North(Up), 225: NE, 270: East(Right), 315: SE
+        const SEMAPHORE_MAP = {
+            'A': [0, 225],   'B': [0, 270],   'C': [0, 315],   'D': [0, 180],
+            'E': [135, 0],   'F': [90, 0],    'G': [45, 0],    'H': [270, 225],
+            'I': [270, 315], 'J': [90, 180],  'K': [180, 225], 'L': [180, 270],
+            'M': [180, 315], 'N': [180, 135], 'O': [135, 270], 'P': [180, 0],
+            'Q': [180, 45],  'R': [270, 90],  'S': [270, 135], 'T': [180, 90],
+            'U': [180, 135], 'V': [180, 45],  'W': [135, 270], 'X': [135, 225],
+            'Y': [180, 270], 'Z': [45, 270],  ' ': [0, 0]
+        };
+
+        /* ================= GLOBAL STATE ================= */
+        let audioEnabled = true;
+        let audioCtx = null;
+        let isMorsePlaying = false;
+        let morseTimeouts = [];
+        let semaphoreInterval = null;
+        let currentSemaphoreIndex = 0;
+
+        // Quiz State
+        let quizMode = 'morse-audio';
+        let quizScore = 0;
+        let quizStreak = 0;
+        let quizCurrentAnswer = '';
+        let quizTimer = null;
+        let quizTimeLeft = 10;
+
+        /* ================= AUDIO SYNTHESIS (Web Audio API) ================= */
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btnText = document.getElementById('soundStatusText');
+            const icon = document.getElementById('soundIcon');
+            if (audioEnabled) {
+                btnText.textContent = "Suara: ON";
+                icon.className = "fas fa-volume-up text-pramuka-gold";
+            } else {
+                btnText.textContent = "Suara: OFF";
+                icon.className = "fas fa-volume-mute text-stone-400";
+            }
+        }
+
+        function playBeep(durationMs, frequency = 700) {
+            return new Promise((resolve) => {
+                if (!audioEnabled) {
+                    setTimeout(resolve, durationMs);
+                    return;
+                }
+                try {
+                    initAudio();
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.value = frequency;
+
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (durationMs / 1000));
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + (durationMs / 1000));
+
+                    setTimeout(resolve, durationMs);
+                } catch(e) {
+                    setTimeout(resolve, durationMs);
+                }
+            });
+        }
+
+        /* ================= TAB NAVIGATION ================= */
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('border-pramuka-gold', 'text-pramuka-gold');
+                el.classList.add('border-transparent', 'text-amber-200/70');
+            });
+
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.add('border-pramuka-gold', 'text-pramuka-gold');
+            activeBtn.classList.remove('border-transparent', 'text-amber-200/70');
+
+            if (tabName === 'semaphore') {
+                updateSemaphoreDisplay();
+            } else if (tabName === 'quiz') {
+                startQuizMode(quizMode);
+            }
+        }
+
+        function toggleElement(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+        }
+
+        /* ================= MORSE LOGIC ================= */
+        function translateTextToMorse() {
+            const text = document.getElementById('morseTextInput').value.toUpperCase();
+            let morseResult = [];
+            
+            for (let char of text) {
+                if (MORSE_MAP[char]) {
+                    morseResult.push(MORSE_MAP[char]);
+                } else if (char === ' ') {
+                    morseResult.push('/');
+                }
+            }
+            document.getElementById('morseCodeInput').value = morseResult.join(' ');
+        }
+
+        function translateMorseToText() {
+            const morse = document.getElementById('morseCodeInput').value.trim().split(/\s+/);
+            let textResult = '';
+
+            for (let code of morse) {
+                if (code === '/') {
+                    textResult += ' ';
+                } else if (REVERSE_MORSE_MAP[code]) {
+                    textResult += REVERSE_MORSE_MAP[code];
+                }
+            }
+            document.getElementById('morseTextInput').value = textResult;
+        }
+
+        function clearMorseInput() {
+            document.getElementById('morseTextInput').value = '';
+            document.getElementById('morseCodeInput').value = '';
+            stopMorseAudio();
+        }
+
+        async function playMorseAudio() {
+            stopMorseAudio();
+            const morseCode = document.getElementById('morseCodeInput').value.trim();
+            if (!morseCode) return;
+
+            isMorsePlaying = true;
+            const light = document.getElementById('signalLight');
+            const dotDuration = 100; // ms
+
+            for (let symbol of morseCode) {
+                if (!isMorsePlaying) break;
+
+                if (symbol === '.') {
+                    light.classList.add('flash-active');
+                    await playBeep(dotDuration);
+                    light.classList.remove('flash-active');
+                    await new Promise(r => setTimeout(r, dotDuration));
+                } else if (symbol === '-') {
+                    light.classList.add('flash-active');
+                    await playBeep(dotDuration * 3);
+                    light.classList.remove('flash-active');
+                    await new Promise(r => setTimeout(r, dotDuration));
+                } else if (symbol === ' ' || symbol === '/') {
+                    await new Promise(r => setTimeout(r, dotDuration * 4));
+                }
+            }
+            isMorsePlaying = false;
+        }
+
+        function stopMorseAudio() {
+            isMorsePlaying = false;
+            document.getElementById('signalLight').classList.remove('flash-active');
+        }
+
+        /* ================= SEMAPHORE LOGIC ================= */
+        function setSemaphoreArms(leftAngle, rightAngle) {
+            const leftGroup = document.getElementById('leftArmGroup');
+            const rightGroup = document.getElementById('rightArmGroup');
+
+            // Set transform origin around shoulder joints (left: 90,80; right: 110,80)
+            leftGroup.setAttribute('transform', `rotate(${leftAngle - 90}, 90, 80)`);
+            rightGroup.setAttribute('transform', `rotate(${rightAngle - 90}, 110, 80)`);
+        }
+
+        function updateSemaphoreDisplay() {
+            const input = document.getElementById('semaphoreInput').value.toUpperCase().replace(/[^A-Z ]/g, '');
+            if (!input) return;
+
+            if (currentSemaphoreIndex >= input.length) currentSemaphoreIndex = 0;
+            const currentChar = input[currentSemaphoreIndex] || ' ';
+
+            document.getElementById('currentSemaphoreChar').textContent = currentChar === ' ' ? '[SPASI]' : currentChar;
+            document.getElementById('semaphoreCharIndex').textContent = `Huruf: ${currentSemaphoreIndex + 1} / ${input.length}`;
+
+            const angles = SEMAPHORE_MAP[currentChar] || [0, 0];
+            setSemaphoreArms(angles[0], angles[1]);
+
+            // Render breadcrumb navigation
+            const breadcrumbContainer = document.getElementById('semaphoreWordBreadcrumbs');
+            breadcrumbContainer.innerHTML = '';
+            input.split('').forEach((char, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `px-2.5 py-1 text-xs font-bold rounded-lg ${idx === currentSemaphoreIndex ? 'bg-pramuka-gold text-pramuka-dark' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`;
+                btn.textContent = char;
+                btn.onclick = () => {
+                    currentSemaphoreIndex = idx;
+                    updateSemaphoreDisplay();
+                };
+                breadcrumbContainer.appendChild(btn);
+            });
+        }
+
+        function stepSemaphore(direction) {
+            stopSemaphoreSequence();
+            const input = document.getElementById('semaphoreInput').value.toUpperCase();
+            if (!input) return;
+
+            currentSemaphoreIndex = (currentSemaphoreIndex + direction + input.length) % input.length;
+            updateSemaphoreDisplay();
+        }
+
+        function playSemaphoreSequence() {
+            stopSemaphoreSequence();
+            const speed = parseInt(document.getElementById('semaphoreSpeed').value);
+            const btnPlay = document.getElementById('btnPlaySemaphore');
+            btnPlay.innerHTML = `<i class="fas fa-pause"></i> Jeda`;
+
+            semaphoreInterval = setInterval(() => {
+                const input = document.getElementById('semaphoreInput').value.toUpperCase();
+                if (!input) return;
+
+                currentSemaphoreIndex = (currentSemaphoreIndex + 1) % input.length;
+                updateSemaphoreDisplay();
+            }, speed);
+        }
+
+        function stopSemaphoreSequence() {
+            if (semaphoreInterval) {
+                clearInterval(semaphoreInterval);
+                semaphoreInterval = null;
+            }
+            const btnPlay = document.getElementById('btnPlaySemaphore');
+            if (btnPlay) btnPlay.innerHTML = `<i class="fas fa-play"></i> Putar Urutan`;
+        }
+
+        /* ================= QUIZ & EXERCISE SYSTEM ================= */
+        function startQuizMode(mode) {
+            quizMode = mode;
+            document.querySelectorAll('.quiz-mode-btn').forEach(b => b.classList.replace('border-pramuka-gold', 'border-transparent'));
+            const activeBtn = document.getElementById(`mode-${mode}`);
+            if (activeBtn) activeBtn.classList.replace('border-transparent', 'border-pramuka-gold');
+
+            generateQuizQuestion();
+        }
+
+        function generateQuizQuestion() {
+            clearInterval(quizTimer);
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.add('hidden');
+
+            // Pick random letter A-Z
+            const letters = Object.keys(SEMAPHORE_MAP).filter(k => k !== ' ');
+            const randomChar = letters[Math.floor(Math.random() * letters.length)];
+            quizCurrentAnswer = randomChar;
+
+            // Generate 4 options
+            const options = new Set([randomChar]);
+            while (options.size < 4) {
+                options.add(letters[Math.floor(Math.random() * letters.length)]);
+            }
+            const shuffledOptions = Array.from(options).sort(() => Math.random() - 0.5);
+
+            // Render Question Prompt
+            const questionArea = document.getElementById('quizQuestionArea');
+            questionArea.innerHTML = '';
+
+            if (quizMode === 'morse-audio') {
+                questionArea.innerHTML = `
+                    <button onclick="playBeepForQuiz('${MORSE_MAP[randomChar]}')" class="w-20 h-20 rounded-full bg-pramuka-gold text-pramuka-dark text-2xl flex items-center justify-center shadow-lg hover:scale-105 transition">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <p class="text-xs font-bold text-stone-500 mt-3">Klik tombol untuk mendengarkan bunyi Morse!</p>
+                `;
+                // Auto play sound once
+                setTimeout(() => playBeepForQuiz(MORSE_MAP[randomChar]), 300);
+            } else {
+                // Semaphore Visual Quiz
+                const angles = SEMAPHORE_MAP[randomChar];
+                questionArea.innerHTML = `
+                    <div class="w-36 h-36 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-center">
+                        <svg class="w-32 h-32" viewBox="0 0 200 200">
+                            <circle cx="100" cy="55" r="16" fill="#5D4037" />
+                            <path d="M 85 75 L 115 75 L 110 140 L 90 140 Z" fill="#8D6E63" />
+                            <g transform="rotate(${angles[0] - 90}, 90, 80)">
+                                <line x1="90" y1="80" x2="40" y2="80" stroke="#5D4037" stroke-width="8" stroke-linecap="round" />
+                                <g transform="translate(10, 80)"><polygon points="0,0 30,0 30,30 0,30" fill="#FFB300"/><polygon points="0,0 30,30 0,30" fill="#D84315"/></g>
+                            </g>
+                            <g transform="rotate(${angles[1] - 90}, 110, 80)">
+                                <line x1="110" y1="80" x2="160" y2="80" stroke="#5D4037" stroke-width="8" stroke-linecap="round" />
+                                <g transform="translate(160, 80)"><polygon points="0,0 30,0 30,30 0,30" fill="#FFB300"/><polygon points="0,0 30,30 0,30" fill="#D84315"/></g>
+                            </g>
+                        </svg>
+                    </div>
+                    <p class="text-xs font-bold text-stone-500 mt-2">Huruf apakah yang diperagakan?</p>
+                `;
+            }
+
+            // Render Option Buttons
+            const optionsGrid = document.getElementById('quizOptionsGrid');
+            optionsGrid.innerHTML = '';
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-stone-100 hover:bg-pramuka-gold hover:text-pramuka-dark font-black text-lg py-3 rounded-xl border border-stone-200 transition shadow-sm";
+                btn.textContent = opt;
+                btn.onclick = () => checkQuizAnswer(opt);
+                optionsGrid.appendChild(btn);
+            });
+
+            startQuizTimer();
+        }
+
+        async function playBeepForQuiz(morseCode) {
+            const dotDuration = 100;
+            for (let symbol of morseCode) {
+                if (symbol === '.') {
+                    await playBeep(dotDuration);
+                    await new Promise(r => setTimeout(r, dotDuration));
+                } else if (symbol === '-') {
+                    await playBeep(dotDuration * 3);
+                    await new Promise(r => setTimeout(r, dotDuration));
+                }
+            }
+        }
+
+        function startQuizTimer() {
+            quizTimeLeft = 10;
+            const timerBar = document.getElementById('quizTimerBar');
+            timerBar.style.width = '100%';
+
+            quizTimer = setInterval(() => {
+                quizTimeLeft -= 1;
+                timerBar.style.width = `${(quizTimeLeft / 10) * 100}%`;
+
+                if (quizTimeLeft <= 0) {
+                    clearInterval(quizTimer);
+                    checkQuizAnswer(null); // Time out
+                }
+            }, 1000);
+        }
+
+        function checkQuizAnswer(selectedOption) {
+            clearInterval(quizTimer);
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-red-100', 'text-red-800');
+
+            if (selectedOption === quizCurrentAnswer) {
+                quizScore += 10;
+                quizStreak += 1;
+                feedback.classList.add('bg-emerald-100', 'text-emerald-800');
+                feedback.innerHTML = `<i class="fas fa-check-circle"></i> Benar Sekali! Jawabannya adalah <strong>${quizCurrentAnswer}</strong>`;
+            } else {
+                quizStreak = 0;
+                feedback.classList.add('bg-red-100', 'text-red-800');
+                feedback.innerHTML = `<i class="fas fa-times-circle"></i> ${selectedOption ? 'Jawaban Kurang Tepat!' : 'Waktu Habis!'} Yang benar adalah <strong>${quizCurrentAnswer}</strong>`;
+            }
+
+            document.getElementById('quizScore').textContent = quizScore;
+            document.getElementById('quizStreak').textContent = `${quizStreak} 🔥`;
+
+            setTimeout(generateQuizQuestion, 1800);
+        }
+
+        /* ================= UTILS & INITIALIZATION ================= */
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            el.select();
+            document.execCommand('copy');
+            alert('Teks berhasil disalin!');
+        }
+
+        function initTables() {
+            // Populate Morse Reference Table
+            const morseGrid = document.getElementById('morseDictionaryGrid');
+            morseGrid.innerHTML = '';
+            Object.entries(MORSE_MAP).forEach(([char, code]) => {
+                if (char === ' ') return;
+                const item = document.createElement('div');
+                item.className = 'bg-stone-50 p-2 rounded-lg border border-stone-200 flex justify-between items-center';
+                item.innerHTML = `<span class="font-bold text-stone-800">${char}</span><span class="text-pramuka-accent font-extrabold">${code}</span>`;
+                morseGrid.appendChild(item);
+            });
+
+            // Populate Semaphore Reference Grid
+            const semaGrid = document.getElementById('semaphoreGridGuide');
+            semaGrid.innerHTML = '';
+            Object.keys(SEMAPHORE_MAP).forEach(char => {
+                if (char === ' ') return;
+                const angles = SEMAPHORE_MAP[char];
+                const item = document.createElement('div');
+                item.className = 'bg-stone-50 p-2 rounded-xl border border-stone-200 flex flex-col items-center hover:border-pramuka-gold transition cursor-pointer';
+                item.onclick = () => {
+                    switchTab('semaphore');
+                    document.getElementById('semaphoreInput').value = char;
+                    currentSemaphoreIndex = 0;
+                    updateSemaphoreDisplay();
+                };
+                item.innerHTML = `
+                    <svg class="w-10 h-10" viewBox="0 0 200 200">
+                        <circle cx="100" cy="55" r="16" fill="#5D4037" />
+                        <path d="M 85 75 L 115 75 L 110 140 L 90 140 Z" fill="#8D6E63" />
+                        <g transform="rotate(${angles[0] - 90}, 90, 80)"><line x1="90" y1="80" x2="40" y2="80" stroke="#5D4037" stroke-width="8"/></g>
+                        <g transform="rotate(${angles[1] - 90}, 110, 80)"><line x1="110" y1="80" x2="160" y2="80" stroke="#5D4037" stroke-width="8"/></g>
+                    </svg>
+                    <span class="font-bold text-xs mt-1 text-pramuka-dark">${char}</span>
+                `;
+                semaGrid.appendChild(item);
+            });
+        }
+
+        window.onload = function() {
+            initTables();
+            translateTextToMorse();
+            updateSemaphoreDisplay();
+        };
+    </script>
+</body>
+</html>
