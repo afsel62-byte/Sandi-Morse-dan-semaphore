@@ -1,0 +1,303 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pramuka Cyber Scout - Morse & Semaphore Interaktif</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pramuka: {
+                            brown: '#8B4513',      // Cokelat Utama
+                            darkbrown: '#5C3A21',  // Cokelat Tua
+                            cream: '#FDFBF7',      // Krem Muda Background
+                            lightcream: '#F5EBE0', // Krem
+                            green: '#2D5A27',      // Tunas Kelapa Green
+                            red: '#D90429',        // Kacu Red
+                            gold: '#FFB703',       // Kuning Emas
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #F5EBE0; }
+        ::-webkit-scrollbar-thumb { background: #8B4513; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5C3A21; }
+
+        /* Flash Signal Lamp Animation */
+        .flash-active {
+            background-color: #FFB703 !important;
+            box-shadow: 0 0 40px 12px rgba(255, 183, 3, 0.95);
+            border-color: #FFFFFF !important;
+        }
+
+        /* Smooth Arm Transitions */
+        #leftArmGroup, #rightArmGroup {
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+<body class="bg-pramuka-cream text-stone-800 font-sans min-h-screen flex flex-col justify-between selection:bg-pramuka-gold selection:text-pramuka-darkbrown">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-pramuka-darkbrown text-white shadow-xl sticky top-0 z-50 border-b-4 border-pramuka-gold">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-pramuka-green flex items-center justify-center text-pramuka-gold shadow-md border-2 border-pramuka-gold">
+                    <!-- Tunas Kelapa SVG Icon -->
+                    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
+                        <path d="M12,2C11.5,4 9.5,7 9.5,10.5C9.5,12.5 10.5,14 12,14.5C13.5,14 14.5,12.5 14.5,10.5C14.5,7 12.5,4 12,2M12,16C9,16 6,18 6,21H18C18,18 15,16 12,16Z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl sm:text-2xl tracking-wide text-pramuka-lightcream flex items-center gap-2">
+                        PRAMUKA <span class="text-pramuka-gold">CYBER SCOUT</span>
+                    </h1>
+                    <p class="text-xs text-amber-200/80 font-medium">Media Edukasi & Penerjemah Sandi Interaktif</p>
+                </div>
+            </div>
+
+            <!-- Global Controls -->
+            <div class="flex items-center gap-3">
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="flex items-center gap-2 bg-pramuka-brown hover:bg-amber-900 text-amber-100 text-xs font-semibold px-3.5 py-2 rounded-xl border border-amber-700/50 shadow-sm transition">
+                    <i id="soundIcon" class="fas fa-volume-up text-pramuka-gold"></i>
+                    <span id="soundStatusText" class="hidden sm:inline">Audio: ON</span>
+                </button>
+                <div class="hidden md:flex items-center gap-2 bg-pramuka-green/40 border border-pramuka-green/60 text-emerald-200 text-xs px-3 py-1.5 rounded-full font-semibold">
+                    <i class="fas fa-shield-halved text-pramuka-gold"></i>
+                    <span>Satyaku Kudarmakan</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-pramuka-darkbrown/90 backdrop-blur-md border-t border-amber-900/40">
+            <div class="max-w-6xl mx-auto px-4 flex justify-around sm:justify-start gap-1 sm:gap-2">
+                <button onclick="switchTab('morse')" id="tab-morse" class="tab-btn py-3 px-3 sm:px-5 font-bold text-xs sm:text-sm border-b-4 border-pramuka-gold text-pramuka-gold flex items-center gap-2 transition">
+                    <i class="fas fa-broadcast-tower"></i> Sandi Morse
+                </button>
+                <button onclick="switchTab('semaphore')" id="tab-semaphore" class="tab-btn py-3 px-3 sm:px-5 font-bold text-xs sm:text-sm border-b-4 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 transition">
+                    <i class="fas fa-flag"></i> Sandi Semaphore
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn py-3 px-3 sm:px-5 font-bold text-xs sm:text-sm border-b-4 border-transparent text-amber-200/70 hover:text-amber-100 flex items-center gap-2 transition">
+                    <i class="fas fa-gamepad"></i> Kuis Interaktif
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+
+        <!-- ================= TAB 1: SANDI MORSE ================= -->
+        <section id="content-morse" class="tab-content space-y-6">
+            <!-- Header Banner -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-pramuka-darkbrown flex items-center gap-2">
+                        <i class="fas fa-wifi text-pramuka-red"></i> Penerjemah Sandi Morse
+                    </h2>
+                    <p class="text-sm text-stone-600">Konversi otomatis dua arah dengan Generator Audio Beep & Senter Lampu Kedip.</p>
+                </div>
+                <div class="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 text-xs font-semibold text-amber-900">
+                    <i class="fas fa-lightbulb text-pramuka-gold"></i> Titik (.) = Dit, Strip (-) = Dah
+                </div>
+            </div>
+
+            <!-- Converter Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Text Input -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="font-bold text-stone-700 text-sm flex items-center gap-2">
+                            <i class="fas fa-font text-pramuka-brown"></i> Teks Biasa
+                        </label>
+                        <button onclick="clearMorseInput()" class="text-xs text-stone-400 hover:text-red-500 font-medium">
+                            <i class="fas fa-trash"></i> Bersihkan
+                        </button>
+                    </div>
+                    <textarea id="morseTextInput" oninput="translateTextToMorse()" placeholder="Ketik kalimat di sini... (Contoh: PRAMUKA INDONESIA)" class="w-full h-36 p-3.5 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-pramuka-brown focus:outline-none resize-none font-medium text-stone-800"></textarea>
+
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button onclick="playMorseAudio()" class="flex-1 bg-pramuka-brown hover:bg-pramuka-darkbrown text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition shadow-sm">
+                            <i class="fas fa-play"></i> Putar Audio Beep
+                        </button>
+                        <button onclick="stopMorseAudio()" class="bg-stone-200 hover:bg-stone-300 text-stone-700 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition" title="Hentikan Audio">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                        <button onclick="copyToClipboard('morseTextInput')" class="bg-amber-100 hover:bg-amber-200 text-pramuka-darkbrown px-4 py-2.5 rounded-xl font-semibold text-sm transition" title="Salin Teks">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Morse Code Box -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="font-bold text-stone-700 text-sm flex items-center gap-2">
+                            <i class="fas fa-code text-pramuka-green"></i> Kode Morse (. / -)
+                        </label>
+                        <span class="text-xs text-stone-400">Gunakan spasi antar huruf, '/' untuk spasi kata</span>
+                    </div>
+                    <textarea id="morseCodeInput" oninput="translateMorseToText()" placeholder="Ketik kode morse... (Contoh: .--. .-. .- -- ..- -.- .-)" class="w-full h-36 p-3.5 bg-stone-900 text-amber-300 font-mono text-lg border border-stone-800 rounded-xl focus:ring-2 focus:ring-pramuka-gold focus:outline-none resize-none tracking-wider"></textarea>
+
+                    <!-- Visual Signal Flash Container -->
+                    <div class="mt-3 flex items-center justify-between bg-stone-100 p-2.5 rounded-xl border border-stone-200">
+                        <div class="flex items-center gap-3">
+                            <div id="signalLight" class="w-8 h-8 rounded-full bg-stone-300 border-2 border-stone-400 transition-all duration-75 flex items-center justify-center text-xs shadow-inner">
+                                <i class="fas fa-bolt text-stone-500"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-stone-600">Visual Signal Flash (Lampu Kedip)</span>
+                        </div>
+                        <button onclick="copyToClipboard('morseCodeInput')" class="bg-stone-200 hover:bg-stone-300 text-stone-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                            <i class="fas fa-copy"></i> Salin Kode Morse
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                <button onclick="toggleElement('morseTable')" class="w-full p-4 bg-stone-50 hover:bg-stone-100 text-left font-bold text-pramuka-darkbrown flex justify-between items-center text-sm">
+                    <span class="flex items-center gap-2"><i class="fas fa-book-open text-pramuka-gold"></i> Tabel Referensi Cepat Abjad & Angka Morse</span>
+                    <i class="fas fa-chevron-down text-stone-400"></i>
+                </button>
+                <div id="morseTable" class="p-5 border-t border-stone-200">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 text-xs font-mono" id="morseDictionaryGrid"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: SANDI SEMAPHORE ================= -->
+        <section id="content-semaphore" class="tab-content space-y-6 hidden">
+            <!-- Header Banner -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-pramuka-darkbrown flex items-center gap-2">
+                        <i class="fas fa-flag text-pramuka-red"></i> Visualisator & Peraga Bendera Semaphore
+                    </h2>
+                    <p class="text-sm text-stone-600">Animasi peragaan posisi bendera Semaphore karakter Pramuka secara presisi kata demi kata.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Controls Side (Left 5 Cols) -->
+                <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-stone-200 flex flex-col justify-between space-y-4">
+                    <div>
+                        <label class="font-bold text-stone-700 text-sm mb-2 block">
+                            <i class="fas fa-keyboard text-pramuka-brown"></i> Teks Yang Ingin Diperagakan:
+                        </label>
+                        <input type="text" id="semaphoreInput" maxlength="50" value="TUNAS KELAPA" oninput="updateSemaphoreDisplay()" placeholder="Ketik teks di sini..." class="w-full p-3.5 bg-stone-50 border border-stone-200 rounded-xl font-bold text-stone-800 tracking-wide uppercase focus:ring-2 focus:ring-pramuka-brown focus:outline-none">
+                        <p class="text-xs text-stone-400 mt-1">Otomatis menyaring huruf A-Z dan spasi.</p>
+                    </div>
+
+                    <!-- Animation Playback Controls -->
+                    <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 space-y-3">
+                        <div class="flex justify-between items-center text-xs font-bold text-pramuka-darkbrown">
+                            <span>KONTROL ANIMASI</span>
+                            <span id="semaphoreCharIndex">Huruf: 1 / 12</span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="playSemaphoreSequence()" id="btnPlaySemaphore" class="flex-1 bg-pramuka-green hover:bg-emerald-800 text-white py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                                <i class="fas fa-play"></i> Putar Urutan
+                            </button>
+                            <button onclick="stopSemaphoreSequence()" class="bg-stone-200 hover:bg-stone-300 text-stone-700 py-2.5 px-3 rounded-xl font-bold text-xs transition">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                            <button onclick="stepSemaphore(-1)" class="bg-amber-100 hover:bg-amber-200 text-pramuka-darkbrown py-2.5 px-3 rounded-xl font-bold text-xs transition" title="Huruf Sebelumnya">
+                                <i class="fas fa-backward"></i>
+                            </button>
+                            <button onclick="stepSemaphore(1)" class="bg-amber-100 hover:bg-amber-200 text-pramuka-darkbrown py-2.5 px-3 rounded-xl font-bold text-xs transition" title="Huruf Berikutnya">
+                                <i class="fas fa-forward"></i>
+                            </button>
+                        </div>
+
+                        <!-- Speed Slider -->
+                        <div class="flex items-center gap-3 pt-2">
+                            <span class="text-xs text-stone-600 font-semibold min-w-[70px]">Kecepatan:</span>
+                            <input type="range" id="semaphoreSpeed" min="400" max="1600" value="900" step="100" class="w-full accent-pramuka-brown">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display Canvas Side (Right 7 Cols) -->
+                <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-stone-200 flex flex-col items-center justify-center min-h-[340px]">
+                    <div class="text-center mb-2">
+                        <span id="currentSemaphoreChar" class="text-4xl font-extrabold text-pramuka-darkbrown bg-amber-100 px-5 py-1.5 rounded-xl border border-amber-300 inline-block shadow-sm">T</span>
+                    </div>
+
+                    <!-- SVG Scout Character Canvas -->
+                    <div class="relative w-64 h-64 flex items-center justify-center bg-stone-50 rounded-2xl border border-stone-200 shadow-inner my-2 overflow-hidden">
+                        <svg id="semaphoreSvg" class="w-56 h-56" viewBox="0 0 200 200">
+                            <!-- Background Accent -->
+                            <circle cx="100" cy="100" r="90" fill="#FDFBF7" stroke="#F5EBE0" stroke-width="4" />
+
+                            <!-- Head -->
+                            <circle cx="100" cy="55" r="16" fill="#5C3A21" />
+                            <!-- Scout Cap / Baret Pramuka -->
+                            <path d="M 80 50 Q 100 32 120 50 Z" fill="#D90429" />
+                            <rect x="76" y="49" width="48" height="4" rx="2" fill="#FFB703" />
+                            <circle cx="90" cy="44" r="3" fill="#FFB703" />
+
+                            <!-- Torso / Seragam Pramuka -->
+                            <path d="M 85 75 L 115 75 L 110 140 L 90 140 Z" fill="#8B4513" />
+                            <!-- Kacu Pramuka Merah-Putih -->
+                            <path d="M 88 75 L 100 96 L 112 75 Z" fill="#D90429" />
+                            <path d="M 93 75 L 100 89 L 107 75 Z" fill="#FFFFFF" />
+
+                            <!-- Legs -->
+                            <rect x="88" y="140" width="10" height="42" rx="3" fill="#5C3A21" />
+                            <rect x="102" y="140" width="10" height="42" rx="3" fill="#5C3A21" />
+
+                            <!-- LEFT ARM & FLAG GROUP -->
+                            <g id="leftArmGroup">
+                                <line x1="90" y1="80" x2="40" y2="80" stroke="#5C3A21" stroke-width="8" stroke-linecap="round" />
+                                <line x1="40" y1="80" x2="10" y2="80" stroke="#3E2723" stroke-width="3" />
+                                <!-- Red & Yellow Flag -->
+                                <g transform="translate(10, 80)">
+                                    <polygon points="0,0 30,0 30,30 0,30" fill="#FFB703" />
+                                    <polygon points="0,0 30,30 0,30" fill="#D90429" />
+                                </g>
+                            </g>
+
+                            <!-- RIGHT ARM & FLAG GROUP -->
+                            <g id="rightArmGroup">
+                                <line x1="110" y1="80" x2="160" y2="80" stroke="#5C3A21" stroke-width="8" stroke-linecap="round" />
+                                <line x1="160" y1="80" x2="190" y2="80" stroke="#3E2723" stroke-width="3" />
+                                <!-- Red & Yellow Flag -->
+                                <g transform="translate(160, 80)">
+                                    <polygon points="0,0 30,0 30,30 0,30" fill="#FFB703" />
+                                    <polygon points="0,0 30,30 0,30" fill="#D90429" />
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Interactive Letter Breadcrumbs -->
+                    <div class="flex gap-1.5 overflow-x-auto max-w-full p-2" id="semaphoreWordBreadcrumbs"></div>
+                </div>
+            </div>
+
+            <!-- Reference Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+                <button onclick="toggleElement('semaphoreTable')" class="w-full p-
